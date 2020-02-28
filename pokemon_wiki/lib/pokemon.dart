@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'package:flutter/cupertino.dart';
+
 class Pokemon {
   final List<Ability> abilities;
-  final double base_exp;
+  final double baseExp;
   final List<Form> forms;
   final double height;
   final List<Item> items;
@@ -15,11 +20,10 @@ class Pokemon {
   final List<Type> types;
   final double weight;
 
-  Pokemon({
-      this.abilities,
-      this.base_exp,
-      this.forms,
-      this.height,
+  Pokemon({this.abilities,
+    this.baseExp,
+    this.forms,
+    this.height,
     this.items,
     this.id,
     this.def,
@@ -32,8 +36,42 @@ class Pokemon {
     this.types,
     this.weight});
 
-  factory Pokemon.fromJSON(Map<String, dynamic> json) {
-    return Pokemon(abilities: json);
+  factory Pokemon.fromJSON(Map<String, dynamic> response) {
+    Iterable l = json.decode(response['abilities']);
+    List<Ability> abilities = l.map((el) => Ability.fromJSON(el)).toList();
+
+    l = json.decode(response['forms']);
+    List<Form> forms = l.map((el) => Form.fromJSON(el)).toList();
+
+    l = json.decode(response['held_items']);
+    List<Item> items = l.map((el) => Item.fromJSON(el)).toList();
+
+    l = json.decode(response['moves']);
+    List<Move> moves = l.map((el) => Move.fromJSON(el)).toList();
+
+    l = json.decode(response['stats']);
+    List<Stats> stats = l.map((el) => Stats.fromJSON(el)).toList();
+
+    l = json.decode(response['types']);
+    List<Type> types = l.map((el) => Type.fromJSON(el)).toList();
+
+    return Pokemon(
+        abilities: abilities,
+        baseExp: response['base_exp'],
+        forms: forms,
+        height: response['height'],
+        items: items,
+        id: response['id'],
+        def: response['is_default'],
+        moves: moves,
+        name: response['name'],
+        order: response['order'],
+        species: Species.fromJSON(response['species']),
+        sprite: Sprite.fromJSON(response['sprites']),
+        stats: stats,
+        types: types,
+        weight: response['weight']
+    );
   }
 }
 
@@ -52,16 +90,88 @@ class Ability {
   }
 }
 
-class Form {}
+class Form {
+  final String name;
+  final String url;
 
-class Item {}
+  Form({this.name, this.url});
 
-class Move {}
+  factory Form.fromJSON(Map<String, dynamic> json) {
+    return Form(name: json['name'], url: json['url']);
+  }
+}
 
-class Species {}
+class Item {
+  final String name;
 
-class Sprite {}
+  Item({this.name});
 
-class Stats {}
+  factory Item.fromJSON(Map<String, dynamic> json){
+    return Item(name: json['item']['name']);
+  }
+}
 
-class Type {}
+class Move {
+  final String name;
+
+  Move({this.name});
+
+  factory Move.fromJSON(Map<String, dynamic> json){
+    return Move(name: json['move']['name']);
+  }
+}
+
+class Species {
+  final String name;
+
+  Species({this.name});
+
+  factory Species.fromJSON(Map<String, dynamic> json){
+    return Species(name: json['name']);
+  }
+}
+
+class Sprite {
+  final String url;
+  final Image img;
+
+  Sprite({this.url, this.img});
+
+  factory Sprite.fromJSON(Map<String, dynamic> jsons){
+    var url = jsons['front_default'];
+    var img;
+
+    http.post(url).then((response) {
+      response = json.decode(response.body);
+      img = Image.network(response.body);
+    });
+
+    return Sprite(url: jsons['front_default'], img: img);
+  }
+}
+
+class Stats {
+  final double baseStat;
+  final double effort;
+  final String name;
+
+  Stats({this.baseStat, this.effort, this.name});
+
+  factory Stats.fromJSON(Map<String, dynamic> json){
+    return Stats(baseStat: json['base_stat'],
+        effort: json['effort'],
+        name: json['stat']['name']);
+  }
+}
+
+class Type {
+  final int slot;
+  final String name;
+
+  Type({this.slot, this.name});
+
+  factory Type.fromJSON(Map<String, dynamic> json){
+    return Type(slot: json['slot'],
+        name: json['type']['name']);
+  }
+}

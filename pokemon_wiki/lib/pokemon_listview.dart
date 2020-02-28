@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:pokemon_wiki/pokemon.dart';
 
 import 'pokemon_container.dart';
 
 class PokemonListView extends StatelessWidget {
   final List<Row> rows = [];
-  final List<String> strings = [];
+  final List<Pokemon> pokemons;
 
-  void populate(int num) {
-    for (int i = 0; i < num; i++) strings.add(i.toString());
-  }
+  PokemonListView(this.pokemons);
 
   void createRows(int num) {
     List<PokemonContainer> containers = [];
 
-    for (int i = 0; i < strings.length; i++) {
-      containers.add(PokemonContainer(strings[i]));
+    for (int i = 0; i < pokemons.length; i++) {
+      containers.add(PokemonContainer(pokemons[i]));
 
-      if (containers.length == num || i == strings.length - 1) {
+      if (containers.length == num || i == pokemons.length - 1) {
         rows.add(Row(
           children: containers.toList(),
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -27,7 +26,6 @@ class PokemonListView extends StatelessWidget {
   }
 
   void init() {
-    populate(1000);
     createRows(3);
   }
 
