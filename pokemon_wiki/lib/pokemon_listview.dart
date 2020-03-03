@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pokemon_wiki/pokemon.dart';
-
 import 'pokemon_container.dart';
 
 class PokemonListView extends StatelessWidget {
   final List<Row> rows = [];
-  final List<Pokemon> pokemons;
+  final List<Future<Pokemon>> pokemons;
 
   PokemonListView(this.pokemons);
 
